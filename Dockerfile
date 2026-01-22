@@ -2,8 +2,10 @@ FROM julia:1.10
 
 WORKDIR /app
 ENV JULIA_PROJECT=/app
+ENV JULIA_DEPOT_PATH=/app/.julia
 
 COPY Project.toml Manifest.toml ./
+RUN mkdir -p /app/.julia && chmod -R 777 /app/.julia
 RUN julia --project=. -e 'using Pkg; Pkg.instantiate(; allow_autoprecomp=false)'
 
 COPY . .
