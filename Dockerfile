@@ -1,9 +1,10 @@
 FROM julia:1.10
 
 WORKDIR /app
+ENV JULIA_PROJECT=/app
 
 COPY Project.toml Manifest.toml ./
-RUN julia -e 'using Pkg; Pkg.instantiate()'
+RUN julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
 COPY . .
 
