@@ -112,14 +112,14 @@ end
 
 function trajectories_data(p, dyn!; tspan=(0.0, 20.0), step=0.05, saveat=0.2)
     v_ini = Vector{Vector{Float64}}()
-    for _x in 0:step:1, _y in 0:step:(1 - _x)
+    for _x in 0:step:1, _y in 0:step:(1-_x)
         _z = 1 - _x - _y
         if _z < 0.99
             push!(v_ini, [_x, _y, _z])
         end
     end
 
-    trajectories = Vector{Dict{String, Vector{Float64}}}()
+    trajectories = Vector{Dict{String,Vector{Float64}}}()
     for u0 in v_ini
         prob = ODEProblem(dyn!, u0, tspan, p)
         sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8, saveat=saveat)
@@ -133,7 +133,7 @@ end
 function vector_field_data(p, dyn!; step=0.04)
     vf_x = Float64[]
     vf_y = Float64[]
-    for _x in 0.0:step:1.0, _y in 0.0:step:(1.0 - _x)
+    for _x in 0.0:step:1.0, _y in 0.0:step:(1.0-_x)
         _z = 1.0 - _x - _y
         if _z >= -1e-10
             dy = zeros(3)
@@ -205,7 +205,7 @@ function stability_grid(p, dyn!; grid_size=120)
             fa, fc = get_f(a, c)
             fa_da, fc_da = get_f(a + h, c)
             fa_dc, fc_dc = get_f(a, c + h)
-            J = [(fa_da - fa) / h (fa_dc - fa) / h; (fc_da - fc) / h (fc_dc - fc) / h]
+            J = [(fa_da-fa)/h (fa_dc-fa)/h; (fc_da-fc)/h (fc_dc-fc)/h]
             z_grid[i, j] = maximum(real(eigen(J).values))
         else
             z_grid[i, j] = NaN
@@ -226,9 +226,9 @@ function equilibria_xy(equilibria)
 end
 
 function to_nested(z_grid)
-    rows = Vector{Vector{Union{Nothing, Float64}}}(undef, size(z_grid, 1))
+    rows = Vector{Vector{Union{Nothing,Float64}}}(undef, size(z_grid, 1))
     for i in 1:size(z_grid, 1)
-        row = Vector{Union{Nothing, Float64}}(undef, size(z_grid, 2))
+        row = Vector{Union{Nothing,Float64}}(undef, size(z_grid, 2))
         for j in 1:size(z_grid, 2)
             val = z_grid[i, j]
             row[j] = isfinite(val) ? val : nothing
@@ -239,7 +239,7 @@ function to_nested(z_grid)
 end
 
 function to_nullable(v::Vector{Float64})
-    out = Vector{Union{Nothing, Float64}}(undef, length(v))
+    out = Vector{Union{Nothing,Float64}}(undef, length(v))
     for i in eachindex(v)
         out[i] = isfinite(v[i]) ? v[i] : nothing
     end
@@ -294,7 +294,7 @@ function compute_payload(p, dyn!)
     vector_field = vector_field_data(p, dyn!)
     x_grid, y_grid, z_grid = stability_grid(p, dyn!)
 
-    payload = Dict{String, Any}()
+    payload = Dict{String,Any}()
     payload["simplex"] = Dict(
         "boundary" => boundary,
         "trajectories" => trajectories,
@@ -311,14 +311,18 @@ function compute_payload(p, dyn!)
     return payload
 end
 
-function json_response(status, payload)
-    headers = [
+function cors_headers()
+    return [
         "Content-Type" => "application/json",
         "Access-Control-Allow-Origin" => "*",
-        "Access-Control-Allow-Headers" => "Content-Type",
-        "Access-Control-Allow-Methods" => "POST, OPTIONS, GET"
+        "Access-Control-Allow-Headers" => "Content-Type, Accept, Origin, X-Requested-With",
+        "Access-Control-Allow-Methods" => "POST, OPTIONS, GET",
+        "Access-Control-Max-Age" => "86400"
     ]
-    return HTTP.Response(status, headers, JSON3.write(payload))
+end
+
+function json_response(status, payload)
+    return HTTP.Response(status, cors_headers(), JSON3.write(payload))
 end
 
 function handler(req)
@@ -328,7 +332,7 @@ function handler(req)
     elseif req.method == "GET" && path == "/api/health"
         return json_response(200, Dict("status" => "ok"))
     elseif req.method == "POST" && path == "/api/data"
-        body = isempty(req.body) ? Dict{String, Any}() : JSON3.read(String(req.body))
+        body = isempty(req.body) ? Dict{String,Any}() : JSON3.read(String(req.body))
         mode = normalize_mode(get_body_value(body, "mode"))
         defaults = mode == "productivo" ? DEFAULTS_PRODUCTIVO : DEFAULTS_IMPRODUCTIVO
         dyn! = mode == "productivo" ? safe_afu2productivo! : safe_afu2improductivo!
