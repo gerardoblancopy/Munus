@@ -10,7 +10,7 @@ RUN mkdir -p /app/.julia_depot && chmod -R 777 /app/.julia_depot
 COPY . .
 
 # Resolve, Instantiate, and Precompile in one go to ensure consistency
-RUN julia --project=. -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(; allow_autoprecomp=false); Pkg.precompile()'
+RUN julia --project=. -e 'using Pkg; Pkg.Registry.add("General"); Pkg.resolve(); Pkg.instantiate(; allow_autoprecomp=false); Pkg.precompile()'
 
 ENV JULIA_NUM_THREADS=2
 EXPOSE 8000
