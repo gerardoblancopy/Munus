@@ -6,7 +6,7 @@ ENV JULIA_DEPOT_PATH=/tmp/julia
 
 COPY Project.toml Manifest.toml ./
 RUN mkdir -p /tmp/julia && chmod -R 777 /tmp/julia
-RUN julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+RUN julia --project=. -e 'using Pkg; Pkg.instantiate(; allow_autoprecomp=false)'
 
 COPY . .
 
