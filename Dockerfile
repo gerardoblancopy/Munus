@@ -1,4 +1,4 @@
-FROM julia:1.10
+FROM julia:1.12
 
 WORKDIR /app
 ENV JULIA_PROJECT=/app
