@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: munus-backend
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/health

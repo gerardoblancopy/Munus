@@ -1,0 +1,9 @@
+.git
+.gitignore
+.vercel
+node_modules
+dist
+*.ipynb
+*.png
+*.pdf
+*.svg

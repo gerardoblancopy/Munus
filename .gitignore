@@ -1,0 +1,5 @@
+.deps_installed
+*.log
+/.vscode
+/.idea
+/.DS_Store
