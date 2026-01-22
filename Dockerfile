@@ -9,6 +9,7 @@ RUN julia --project=. -e 'using Pkg; Pkg.instantiate()'
 COPY . .
 
 ENV JULIA_NUM_THREADS=2
+ENV JULIA_PKG_PRECOMPILE_AUTO=0
 EXPOSE 8000
 
 CMD ["julia", "--project=.", "server.jl"]
