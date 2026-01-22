@@ -4,16 +4,15 @@ WORKDIR /app
 ENV JULIA_PROJECT=/app
 ENV JULIA_DEPOT_PATH=/app/.julia_depot
 
-COPY Project.toml Manifest.toml ./
+# Ensure depot directory exists and is writable
 RUN mkdir -p /app/.julia_depot && chmod -R 777 /app/.julia_depot
-RUN julia --project=. -e 'using Pkg; Pkg.instantiate(; allow_autoprecomp=false)'
 
 COPY . .
 
-RUN julia --project=. -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(; allow_autoprecomp=false)'
+# Resolve, Instantiate, and Precompile in one go to ensure consistency
+RUN julia --project=. -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(; allow_autoprecomp=false); Pkg.precompile()'
 
 ENV JULIA_NUM_THREADS=2
-ENV JULIA_PKG_PRECOMPILE_AUTO=0
 EXPOSE 8000
 
-CMD ["bash", "/app/entrypoint.sh"]
+CMD ["julia", "--project=.", "server.jl"]
