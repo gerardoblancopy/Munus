@@ -4,7 +4,7 @@ WORKDIR /app
 ENV JULIA_PROJECT=/app
 
 COPY Project.toml Manifest.toml ./
-RUN julia --project=. -e 'using Pkg; Pkg.instantiate()'
+RUN julia --project=. -e 'using Pkg; Pkg.instantiate(; allow_autoprecomp=false)'
 
 COPY . .
 
