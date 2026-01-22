@@ -10,6 +10,7 @@ COPY . .
 
 ENV JULIA_NUM_THREADS=2
 ENV JULIA_PKG_PRECOMPILE_AUTO=0
+ENV JULIA_COMPILED_MODULES=0
 EXPOSE 8000
 
-CMD ["julia", "--project=.", "server.jl"]
+CMD ["julia", "--compiled-modules=no", "--project=.", "server.jl"]
