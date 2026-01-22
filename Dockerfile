@@ -10,6 +10,8 @@ RUN julia --project=. -e 'using Pkg; Pkg.instantiate(; allow_autoprecomp=false)'
 
 COPY . .
 
+RUN julia --project=. -e 'using Pkg; Pkg.resolve(); Pkg.instantiate(; allow_autoprecomp=false)'
+
 ENV JULIA_NUM_THREADS=2
 ENV JULIA_PKG_PRECOMPILE_AUTO=0
 EXPOSE 8000
